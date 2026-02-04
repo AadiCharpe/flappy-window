@@ -22,6 +22,7 @@ public class main {
 class Manager {
     private double yv = -1;
     private ArrayList<Pipe> pipes;
+    private int spawnTime = 0;
     public void start() {
         Bird bird = new Bird();
         pipes = new ArrayList<>();
@@ -35,35 +36,42 @@ class Manager {
 
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
         int y = (int) size.getHeight() / 2 + 160;
-        Pipe pipe = new Pipe((int) size.getWidth() - 100, y, 100, (int) size.getHeight() - y, false);
-        pipes.add(pipe);
-        pipe.show();
-
-        Pipe pipe2 = new Pipe((int) size.getWidth() - 100, 0, 100, (int) size.getHeight() - y, true);
-        pipes.add(pipe2);
-        pipe2.show();
 
         new Timer(1000 / 60, new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 try {
-                        bird.setLocation(bird.getX(), bird.getY() - (int) Math.floor(yv));
-                        if(yv > -15)
-                            yv -= 0.4;
-                        for(int i = 0; i < pipes.size(); i++) {
-                            Pipe current = pipes.get(i);
-                            current.setLocation(current.getX() - 4, current.getY());
-                            if(current.getX() <= 0) {
-                                current.dispose();
-                                pipes.remove(current);
-                            }
+                    bird.setLocation(bird.getX(), bird.getY() - (int) Math.floor(yv));
+                    if(yv > -15)
+                        yv -= 0.4;
+                    for(int i = 0; i < pipes.size(); i++) {
+                        Pipe current = pipes.get(i);
+                        current.setLocation(current.getX() - 4, current.getY());
+                        if(current.getX() <= 0) {
+                            current.dispose();
+                            pipes.remove(current);
                         }
-                        Thread.sleep(1000 / 120);
+                    }
+                    spawnTime++;
+                    if(spawnTime >= 110) {
+                        int offset = (int) (Math.random() * (size.getHeight() / 2.5)) - (int) (size.getHeight() / 5);
+
+                        Pipe pipe = new Pipe((int) size.getWidth() - 100, y + offset, 100, (int) size.getHeight() - (y + offset), false);
+                        pipes.add(pipe);
+                        pipe.setVisible(true);
+
+                        Pipe pipe2 = new Pipe((int) size.getWidth() - 100, 0, 100, (int) size.getHeight() - (y - offset), true);
+                        pipes.add(pipe2);
+                        pipe2.setVisible(true);
+                        
+                        bird.requestFocus();
+                        spawnTime = 0;
+                    }
+                    Thread.sleep(1000 / 120);
                 } catch(Exception e) {
                     e.printStackTrace();
                 }
             }
         }).start();
-        bird.requestFocus();
         bird.show();
     }
 }

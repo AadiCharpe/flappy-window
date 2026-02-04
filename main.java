@@ -22,7 +22,7 @@ public class main {
 class Manager {
     private double yv = -1;
     private ArrayList<Pipe> pipes;
-    private int spawnTime = 0;
+    private int spawnTime = 110;
     public void start() {
         Bird bird = new Bird();
         pipes = new ArrayList<>();
@@ -47,6 +47,10 @@ class Manager {
                         System.exit(0);
                     for(int i = 0; i < pipes.size(); i++) {
                         Pipe current = pipes.get(i);
+                        int birdX = bird.getX(), birdY = bird.getY(), birdW = bird.getWidth(), birdH = bird.getHeight(), pipeX = current.getX(), pipeY = current.getY(), pipeW = current.getWidth(), pipeH = current.getHeight();
+                        if(birdX + birdW >= pipeX && birdX <= pipeX + pipeW && birdY + birdH >= pipeY + 30 && pipeY + pipeH >= birdY + 30) {
+                            System.exit(0);
+                        }
                         current.setLocation(current.getX() - 4, current.getY());
                         if(current.getX() <= 0) {
                             current.dispose();
@@ -82,8 +86,8 @@ class Manager {
 class Bird extends JFrame {
     public Bird() {
         setDefaultCloseOperation(3);
-        setBounds(100, 200, 90, 100);
-        add(new JLabel(new ImageIcon(Toolkit.getDefaultToolkit().getImage("bird.png").getScaledInstance(106, 72, Image.SCALE_SMOOTH))));
+        setBounds(100, 200, 80, 95);
+        add(new JLabel(new ImageIcon(Toolkit.getDefaultToolkit().getImage("bird.png").getScaledInstance(100, 68, Image.SCALE_SMOOTH))));
     }
 }
 

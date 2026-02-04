@@ -4,10 +4,41 @@ import javax.swing.JLabel;
 
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class main {
     public static void main(String[] args) {
+        Manager manager = new Manager();
+        manager.start();
+    }
+}
+
+class Manager {
+    private double yv = -1;
+    public void start() {
         Bird bird = new Bird();
+        bird.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    yv = 10;
+                }
+            }
+        });
+        new Thread() {
+            public void run() {
+                while(true) {
+                    try {
+                        bird.setLocation(bird.getX(), bird.getY() - (int) Math.floor(yv));
+                        if(yv > -15)
+                            yv -= 0.4;
+                        Thread.sleep(1000 / 60);
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
         bird.show();
     }
 }

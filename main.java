@@ -43,6 +43,8 @@ class Manager {
                     bird.setLocation(bird.getX(), bird.getY() - (int) Math.floor(yv));
                     if(yv > -15)
                         yv -= 0.4;
+                    if(bird.getY() <= 50 || bird.getY() + bird.getHeight() >= size.getHeight())
+                        System.exit(0);
                     for(int i = 0; i < pipes.size(); i++) {
                         Pipe current = pipes.get(i);
                         current.setLocation(current.getX() - 4, current.getY());
@@ -53,17 +55,18 @@ class Manager {
                     }
                     spawnTime++;
                     if(spawnTime >= 110) {
-                        int offset = (int) (Math.random() * (size.getHeight() / 2.5)) - (int) (size.getHeight() / 5);
+                        int offset = (int) (Math.random() * (size.getHeight() / 2)) - (int) (size.getHeight() / 4     );
 
                         Pipe pipe = new Pipe((int) size.getWidth() - 100, y + offset, 100, (int) size.getHeight() - (y + offset), false);
                         pipes.add(pipe);
+                        pipe.setFocusableWindowState(false);
                         pipe.setVisible(true);
 
                         Pipe pipe2 = new Pipe((int) size.getWidth() - 100, 0, 100, (int) size.getHeight() - (y - offset), true);
                         pipes.add(pipe2);
+                        pipe2.setFocusableWindowState(false);
                         pipe2.setVisible(true);
                         
-                        bird.requestFocus();
                         spawnTime = 0;
                     }
                     Thread.sleep(1000 / 120);

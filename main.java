@@ -1,9 +1,14 @@
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -23,34 +28,36 @@ class Manager {
     private double yv = -1;
     private ArrayList<Pipe> pipes;
     private int spawnTime = 110;
+    private Timer tick;
+    private gameOver gameOverScreen;
+    private Bird bird;
     public void start() {
-        Bird bird = new Bird();
+        bird = new Bird();
         pipes = new ArrayList<>();
+        gameOverScreen = new gameOver(this);
         bird.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+                if(e.getKeyCode() == KeyEvent.VK_SPACE)
                     yv = 9;
-                }
             }
         });
 
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
         int y = (int) size.getHeight() / 2 + 160;
 
-        new Timer(1000 / 60, new ActionListener() {
+        tick = new Timer(1000 / 60, new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 try {
-                    bird.setLocation(bird.getX(), bird.getY() - (int) Math.floor(yv));
+                    bird.setLocation(100, bird.getY() - (int) Math.floor(yv));
                     if(yv > -15)
                         yv -= 0.4;
                     if(bird.getY() <= 50 || bird.getY() + bird.getHeight() >= size.getHeight())
-                        System.exit(0);
+                        stop();
                     for(int i = 0; i < pipes.size(); i++) {
                         Pipe current = pipes.get(i);
                         int birdX = bird.getX(), birdY = bird.getY(), birdW = bird.getWidth(), birdH = bird.getHeight(), pipeX = current.getX(), pipeY = current.getY(), pipeW = current.getWidth(), pipeH = current.getHeight();
-                        if(birdX + birdW >= pipeX && birdX <= pipeX + pipeW && birdY + birdH >= pipeY + 30 && pipeY + pipeH >= birdY + 30) {
-                            System.exit(0);
-                        }
+                        if(birdX + birdW >= pipeX && birdX <= pipeX + pipeW && birdY + birdH >= pipeY + 30 && pipeY + pipeH >= birdY + 30)
+                            stop();
                         current.setLocation(current.getX() - 4, current.getY());
                         if(current.getX() <= 0) {
                             current.dispose();
@@ -78,8 +85,24 @@ class Manager {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
+        tick.start();
         bird.show();
+    }
+    public void stop() {
+        tick.stop();
+        gameOverScreen.setVisible(true);
+    }
+
+    public void restart() {
+        gameOverScreen.setVisible(false);
+        bird.setLocation(100, 200);
+        yv = -1;
+        for(int i = 0; i < pipes.size(); i++)
+            pipes.get(i).dispose();
+        pipes.clear();
+        spawnTime = 110;
+        tick.start();
     }
 }
 
@@ -95,5 +118,36 @@ class Pipe extends JFrame {
     public Pipe(int x, int y, int w, int h, boolean flipped) {
         setBounds(x, y, w, h);
         add(new JLabel(new ImageIcon(Toolkit.getDefaultToolkit().getImage(flipped ? "pipe-top.png" : "pipe-bottom.png").getScaledInstance(w, h - 30, Image.SCALE_SMOOTH))));
+    }
+}
+
+class gameOver extends JFrame {
+    public gameOver(Manager manager) {
+        setDefaultCloseOperation( 3);
+        setSize(250, 150);
+        setLocationRelativeTo(null);
+
+        JLabel text = new JLabel("Game Over", SwingConstants.CENTER);
+        text.setFont(new Font("Sanserif", Font.PLAIN, 36));
+        text.setForeground(Color.RED);
+        add(text);
+        JPanel panel = new JPanel();
+
+        JButton restart = new JButton("Restart");
+        restart.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                manager.restart();
+            }
+        });
+        panel.add(restart);
+        JButton close = new JButton("Close");
+        close.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+        panel.add(close);
+
+        add(panel, "South");
     }
 }
